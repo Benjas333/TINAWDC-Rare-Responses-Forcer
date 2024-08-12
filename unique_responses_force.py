@@ -11,7 +11,7 @@ load_dotenv()
 analyzed_url = 'https://codes.thisisnotawebsitedotcom.com/'
 code = getenv('CODE')
 while not isinstance(code, str):
-        code = str(input("Please enter the code: "))
+        code = str(input("Please enter the keyword: "))
 code = sub(r'[^A-Za-z0-9]', '', code)
 
 webhook_url = str(getenv('WEBHOOK_URL'))
@@ -75,7 +75,7 @@ def save_file(content: bytes, content_type: str, index: int) -> str:
         return file_path
 
 webhook = DiscordWebhook(url=webhook_url, username="Unique Responses Detector (by Brute Force)")
-message = f"Successfully started requesting... `{analyzed_url}` with code `{code}`"
+message = f"Successfully started requesting... `{analyzed_url}` with keyword `{code}`"
 print(message)
 webhook.content = message
 webhook.execute()
@@ -93,7 +93,7 @@ while True:
                 continue
 
         if r.status_code == 404:
-                message  = f"`{code}` is an invalide code"
+                message  = f"`{code}` is an invalide keyword"
                 print(message)
                 webhook.content = message
                 webhook.execute()
