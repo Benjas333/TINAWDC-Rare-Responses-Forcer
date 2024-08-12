@@ -1,8 +1,8 @@
 # TINAWDC Rare Responses Forcer
 This Is Not A Website Dot Com Rare Responses Forcer
 ## Introduction
-In the [https://thisisnotawebsitedotcom.com/](https://thisisnotawebsitedotcom.com/) ARG there's a rare possibility for the user to get a different response with the same password. However, the webpage only fetches 'https://codes.thisisnotawebsitedotcom.com/' the first time it's loaded. That means if you want to see one of the rare responses, you must refresh the webpage every time.
-Until now, this code's purpose is to make easier that task by directly fetching 'https://codes.thisisnotawebsitedotcom.com/' and making a preview of all the possible server responses out there.
+In the [https://thisisnotawebsitedotcom.com/](https://thisisnotawebsitedotcom.com/) ARG there's a rare possibility for the user to get a different response with the same password. However, the webpage only fetches 'https://codes.thisisnotawebsitedotcom.com/' the first time it's loaded. That means if you want to see one of the rare responses, you must refresh the webpage every time. Until now!
+This code's purpose is to make easier that task by directly fetching 'https://codes.thisisnotawebsitedotcom.com/' and making a preview of all the possible server responses out there.
 
 ## Getting Started
 [Python 3.12](https://www.python.org/downloads/) recommended.
