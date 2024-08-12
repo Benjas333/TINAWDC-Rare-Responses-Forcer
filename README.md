@@ -30,3 +30,6 @@ python unique_responses_force.py
 The code will automatically send every different response from the `https://codes.thisisnotawebsitedotcom.com/` server to the Discord Webhook. It should be compatible with every type of response. Either multimedia or HTML.
 
 `Ctrl + C` to stop the script.
+
+## Contributing
+Any contribution would be appreciated.
