@@ -29,7 +29,7 @@ unique_responses = []
 with open("index.html", "r", encoding="utf-8") as f:
         html_template = f.read()
 
-def save_base64_image(base64_str, image_format, image_name="image"):
+def save_base64_image(base64_str: str, image_format: str, image_name: str = "image") -> str:
         directory = path.join("codes", code, "assets")
         image_filename = f"{image_name}.{image_format}"
         image_path = path.join(directory, image_filename)
@@ -43,7 +43,7 @@ def save_base64_image(base64_str, image_format, image_name="image"):
         
         return rf"\{image_path}"
 
-def process_html(html_string):
+def process_html(html_string: str) -> str:
         base64_img_pattern = r'data:image/(png|jpeg);base64,([^"]+)'
 
         matches = findall(base64_img_pattern, html_string)
@@ -59,7 +59,7 @@ def process_html(html_string):
 
         return new_html
 
-def save_file(content, content_type, index):
+def save_file(content: bytes, content_type: str, index: int) -> str:
         directory = path.join("codes", code)
         data = content_type.split('/')
         file_type = data[0]
@@ -72,7 +72,7 @@ def save_file(content, content_type, index):
         with open(file_path, 'wb') as f:
                 f.write(content)
         
-        return file_path, content
+        return file_path
 
 webhook = DiscordWebhook(url=webhook_url, username="Unique Responses Detector (by Brute Force)")
 message = f"Successfully started requesting... `{analyzed_url}` with code `{code}`"
@@ -122,14 +122,14 @@ while True:
 
                 unique_responses.append(response)
 
-                file_path, content = save_file(response, content_type, len(unique_responses))
+                file_path = save_file(response, content_type, len(unique_responses))
                 
                 message = f"{str(attempts).zfill(3)} - New unique response ({len(unique_responses)}): file saved as `{file_path}`"
                 print(message)
                 webhook.content = message
                 webhook.execute()
                 webhook.content = "Actual file:"
-                webhook.add_file(file=content, filename=file_path)
+                webhook.add_file(file=response, filename=file_path)
                 webhook.execute()
                 webhook.remove_files()
                 continue
