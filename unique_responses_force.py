@@ -1,0 +1,164 @@
+from discord_webhook import DiscordWebhook
+from os import path, makedirs, getenv
+from re import findall, sub, escape
+from requests import post
+from time import sleep
+from base64 import b64decode
+from dotenv import load_dotenv
+
+load_dotenv()
+
+analyzed_url = 'https://codes.thisisnotawebsitedotcom.com/'
+code = getenv('CODE')
+while not isinstance(code, str):
+        code = str(input("Please enter the code: "))
+code = sub(r'[^A-Za-z0-9]', '', code)
+
+webhook_url = str(getenv('WEBHOOK_URL'))
+
+headersList = {
+        "Accept": "*/*",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
+        "Content-Type": "multipart/form-data; boundary=kljmyvW1ndjXaOEAg4vPm6RBUqO6MC5A" 
+}
+
+payload = f"--kljmyvW1ndjXaOEAg4vPm6RBUqO6MC5A\r\nContent-Disposition: form-data; name=\"code\"\r\n\r\n{code}\r\n--kljmyvW1ndjXaOEAg4vPm6RBUqO6MC5A--\r\n"
+attempts = 0
+unique_responses = []
+
+with open("index.html", "r", encoding="utf-8") as f:
+        html_template = f.read()
+
+def save_base64_image(base64_str, image_format, image_name="image"):
+        directory = path.join("codes", code, "assets")
+        image_filename = f"{image_name}.{image_format}"
+        image_path = path.join(directory, image_filename)
+        
+        makedirs(directory, exist_ok=True)
+
+        image_data = b64decode(base64_str)
+
+        with open(image_path, "wb") as f:
+                f.write(image_data)
+        
+        return rf"\{image_path}"
+
+def process_html(html_string):
+        base64_img_pattern = r'data:image/(png|jpeg);base64,([^"]+)'
+
+        matches = findall(base64_img_pattern, html_string)
+
+        new_html = html_string
+
+        for i, (image_format, base64_img) in enumerate(matches, start=1):
+                image_filename = save_base64_image(base64_img, image_format, f"image_{i}")
+
+                replacement_text = rf"{image_filename}"
+
+                new_html = sub(f'data:image/{image_format};base64,{escape(base64_img)}', replacement_text.replace('\\', r'\\'), new_html, count=1)
+
+        return new_html
+
+def save_file(content, content_type, index):
+        directory = path.join("codes", code)
+        data = content_type.split('/')
+        file_type = data[0]
+        file_extension = data[1]
+        filename = f"{file_type}_{index}.{file_extension}"
+        file_path = path.join(directory, filename)
+
+        makedirs(directory, exist_ok=True)
+
+        with open(file_path, 'wb') as f:
+                f.write(content)
+        
+        return file_path, content
+
+webhook = DiscordWebhook(url=webhook_url, username="Unique Responses Detector (by Brute Force)")
+message = f"Successfully started requesting... `{analyzed_url}` with code `{code}`"
+print(message)
+webhook.content = message
+webhook.execute()
+
+while True:
+        sleep(0.01)
+        attempts += 1
+        try:
+                r = post(analyzed_url, data=payload, headers=headersList)
+        except Exception as e:
+                message = f"{str(attempts).zfill(3)} - Failed to fetch the URL: {e}"
+                print(message)
+                webhook.content = message
+                webhook.execute()
+                continue
+
+        if r.status_code == 404:
+                message  = f"`{code}` is an invalide code"
+                print(message)
+                webhook.content = message
+                webhook.execute()
+                break
+
+        if r.status_code != 200:
+                message = f"{str(attempts).zfill(3)} - The server responded: {r.status_code}"
+                print(message)
+                webhook.content = message
+                webhook.execute()
+                try:
+                        print(r.content)
+                        webhook.content = r.content
+                        webhook.execute()
+                finally:
+                        continue
+        
+        content_type = r.headers.get('Content-Type', '')
+        response = r.content
+        
+        if not 'text/html' in content_type:
+                if response in unique_responses:
+                        message = f"{str(attempts).zfill(3)} - "
+                        print(message)
+                        continue
+
+                unique_responses.append(response)
+
+                file_path, content = save_file(response, content_type, len(unique_responses))
+                
+                message = f"{str(attempts).zfill(3)} - New unique response ({len(unique_responses)}): file saved as `{file_path}`"
+                print(message)
+                webhook.content = message
+                webhook.execute()
+                webhook.content = "Actual file:"
+                webhook.add_file(file=content, filename=file_path)
+                webhook.execute()
+                webhook.remove_files()
+                continue
+        
+        response = process_html(response.decode('utf-8'))
+
+        if response in unique_responses:
+                message = f"{str(attempts).zfill(3)} - "
+                print(message)
+                continue
+        
+        unique_responses.append(response)
+        directory = path.join("codes", code)
+        filename = f"{code}_{len(unique_responses)}.html"
+        file_path = path.join(directory, filename)
+
+        makedirs(directory, exist_ok=True)
+
+        with open(file_path, "w", encoding="utf-8") as f:
+                f.write(html_template.replace("{{NEW_BODY}}", response).replace("{{CODE}}", code).replace("hidden", ""))
+        
+        chunked_response = [response[i:i + 2000 - 10] for i in range(0, len(response), 2000 - 10)] if len(response) > 2000 - 10 else [response]
+        message = f"{str(attempts).zfill(3)} - New unique response ({len(unique_responses)}):"
+        print(message)
+        webhook.content = message
+        webhook.execute()
+        
+        for chunk in chunked_response:
+                print(chunk)
+                webhook.content = f"```\n{chunk}\n```"
+                webhook.execute()
+                sleep(1)
