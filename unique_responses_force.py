@@ -10,11 +10,16 @@ load_dotenv()
 
 analyzed_url = 'https://codes.thisisnotawebsitedotcom.com/'
 code = getenv('CODE')
-while not isinstance(code, str):
+while not code:
         code = str(input("Please enter the keyword: "))
-code = sub(r'[^A-Za-z0-9]', '', code)
+code = sub(r'[^a-z0-9\?]', '', code.lower())
 
-webhook_url = str(getenv('WEBHOOK_URL'))
+auto_open_urls = getenv("AUTO_OPEN_URLS", "true").strip().lower()
+auto_open_urls = "true" if not auto_open_urls in ["true", "false"] else auto_open_urls
+
+webhook_url = getenv('WEBHOOK_URL')
+while not webhook_url and not webhook_url.startswith('http'):
+        webhook_url = str(input("Please enter the Discord webhook URL: "))
 
 headersList = {
         "Accept": "*/*",
@@ -149,7 +154,7 @@ while True:
         makedirs(directory, exist_ok=True)
 
         with open(file_path, "w", encoding="utf-8") as f:
-                f.write(html_template.replace("{{NEW_BODY}}", response).replace("{{CODE}}", code).replace("hidden", ""))
+                f.write(html_template.replace("{{NEW_BODY}}", response).replace("{{CODE}}", code).replace("hidden", "").replace("{{AUTO_OPEN_URLS}}", auto_open_urls))
         
         chunked_response = [response[i:i + 2000 - 10] for i in range(0, len(response), 2000 - 10)] if len(response) > 2000 - 10 else [response]
         message = f"{str(attempts).zfill(3)} - New unique response ({len(unique_responses)}):"
