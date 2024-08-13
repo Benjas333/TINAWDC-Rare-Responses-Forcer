@@ -15,5 +15,41 @@
 </head>
 <body style="background-color: black;">
         {{NEW_BODY}}
+        <script>
+                const auto_open_urls = {{AUTO_OPEN_URLS}};
+                
+                window.onload = () => {
+                        var elements = document.querySelectorAll('.has-link');
+                        
+                        elements.forEach((element) => {
+                                element.className += ' flex flex-col gap-y-8 text-white'
+                                var links = element.getAttribute('data-links');
+                                if (!links) {
+                                        return;
+                                }
+                                var urls = links.split(';');
+                                urls.forEach((url) => {
+                                        var message_div = document.createElement('div');
+                                        message_div.className = 'relative text-2xl md:text-4xl except-mobile font-kidwriting';
+                                
+                                        if (url.startsWith('http')) {
+                                                message_div.innerHTML = `Link redirection detected: ${url}`;
+                                                var button = document.createElement('button');
+                                                button.className = 'content-button';
+                                                button.innerHTML = '<small>➔</small> OPEN LINK';
+                                                button.onclick = () => {
+                                                        window.open(url.trim(), '_blank');
+                                                };
+                                                message_div.appendChild(button);
+                                                if (auto_open_urls) window.open(url.trim(), '_blank');
+                                        } else {
+                                                var targetElement = document.getElementById(url.trim());
+                                                message_div.innerHTML = targetElement ? `Here should be rendered the '${url.trim()}' element.` : `Invalid ID or link: ${url.trim()}`;
+                                        }
+                                        element.appendChild(message_div);
+                                });
+                        });
+                }
+        </script>
 </body>
 </html>
