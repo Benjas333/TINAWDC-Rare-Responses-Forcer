@@ -31,5 +31,8 @@ The code will automatically send every different response from the `https://code
 
 `Ctrl + C` to stop the script.
 
+## Changelog
+- Added Support for redirection links
+
 ## Contributing
 Any contribution would be appreciated.
