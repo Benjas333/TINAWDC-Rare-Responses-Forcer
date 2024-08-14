@@ -32,6 +32,8 @@ The code will automatically send every different response from the `https://code
 `Ctrl + C` to stop the script.
 
 ## Changelog
+- Added controllers for audios
+- Added Added proper presentation of raw messages (PC background)
 - Added Support for redirection links
 
 ## Contributing
