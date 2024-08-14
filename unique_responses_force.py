@@ -27,11 +27,7 @@ headersList = {
         "Content-Type": "multipart/form-data; boundary=kljmyvW1ndjXaOEAg4vPm6RBUqO6MC5A" 
 }
 
-payload = f"--kljmyvW1ndjXaOEAg4vPm6RBUqO6MC5A\r\nContent-Disposition: form-data; name=\"code\"\r\n\r\n{code}\r\n--kljmyvW1ndjXaOEAg4vPm6RBUqO6MC5A--\r\n"
-attempts = 0
-unique_responses = []
-
-with open("index.html", "r", encoding="utf-8") as f:
+with open("template.html", "r", encoding="utf-8") as f:
         html_template = f.read()
 
 def save_base64_image(base64_str: str, image_format: str, image_name: str = "image") -> str:
@@ -78,6 +74,10 @@ def save_file(content: bytes, content_type: str, index: int) -> str:
                 f.write(content)
         
         return file_path
+
+attempts = 0
+payload = f"--kljmyvW1ndjXaOEAg4vPm6RBUqO6MC5A\r\nContent-Disposition: form-data; name=\"code\"\r\n\r\n{code}\r\n--kljmyvW1ndjXaOEAg4vPm6RBUqO6MC5A--\r\n"
+unique_responses = []
 
 webhook = DiscordWebhook(url=webhook_url, username="Unique Responses Detector (by Brute Force)")
 message = f"### Successfully started requesting... `{analyzed_url}` with keyword `{code}`"
