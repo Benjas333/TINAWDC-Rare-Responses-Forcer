@@ -8,17 +8,22 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-analyzed_url = 'https://codes.thisisnotawebsitedotcom.com/'
-code = getenv('CODE')
-while not code:
-        code = str(input("Please enter the keyword: "))
-code = sub(r'[^a-z0-9\?]', '', code.lower())
+ANALYZED_URL = 'https://codes.thisisnotawebsitedotcom.com/'
+code = sub(r'[^a-z0-9\?]', '', input("Please enter the keyword: ").lower())
+
+DEFAULT_MAX_ATTEMPTS = 5000
+max_attempts = getenv('MAX_REQUESTS') or DEFAULT_MAX_ATTEMPTS
+try:
+        max_attempts = int(max_attempts)
+except ValueError:
+        print(f"Wrong data type for MAX_REQUESTS, using default instead ({DEFAULT_MAX_ATTEMPTS}).")
+        max_attempts = DEFAULT_MAX_ATTEMPTS
 
 webhook_url = getenv('WEBHOOK_URL')
-while not webhook_url and not webhook_url.startswith('http'):
+while not webhook_url or not webhook_url.startswith('http'):
         webhook_url = str(input("Please enter the Discord webhook URL: "))
 
-headersList = {
+HEADERS = {
         "Accept": "*/*",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
         "Content-Type": "multipart/form-data; boundary=kljmyvW1ndjXaOEAg4vPm6RBUqO6MC5A" 
@@ -77,16 +82,16 @@ payload = f"--kljmyvW1ndjXaOEAg4vPm6RBUqO6MC5A\r\nContent-Disposition: form-data
 unique_responses = []
 
 webhook = DiscordWebhook(url=webhook_url, username="Unique Responses Detector (by Brute Force)")
-message = f"### Successfully started requesting... `{analyzed_url}` with keyword `{code}`"
+message = f"### Successfully started requesting... `{ANALYZED_URL}` with keyword `{code}`"
 print(message)
 webhook.content = message
 webhook.execute()
 
-while True:
+while attempts < max_attempts:
         sleep(0.01)
         attempts += 1
         try:
-                r = post(analyzed_url, data=payload, headers=headersList)
+                r = post(ANALYZED_URL, data=payload, headers=HEADERS)
         except Exception as e:
                 message = f"{str(attempts).zfill(3)} - Failed to fetch the URL: {e}"
                 print(message)
@@ -164,3 +169,8 @@ while True:
                 webhook.content = f"```\n{chunk}\n```"
                 webhook.execute()
                 sleep(1)
+
+message = "End of the code."
+print(message)
+webhook.content = message
+webhook.execute()
