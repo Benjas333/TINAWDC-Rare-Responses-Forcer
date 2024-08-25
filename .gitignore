@@ -1248,3 +1248,6 @@ index.js
 .env
 codes copy.txt
 .partial codes.txt
+barcode_attempt.py
+bullshit.py
+codes.txt
