@@ -35,7 +35,7 @@ HEADERS = {
 with open("template.html", "r", encoding="utf-8") as f:
         html_template = f.read()
 
-def save_base64_image(base64_str: str, image_format: str, image_name: str = "image") -> str:
+def save_base64_image(base64_str: str, image_format: str, code: str, image_name: str = "image") -> str:
         directory = path.join("codes", code, "assets")
         image_filename = f"{image_name}.{image_format}"
         image_path = path.join(directory, image_filename)
@@ -49,7 +49,7 @@ def save_base64_image(base64_str: str, image_format: str, image_name: str = "ima
         
         return rf"\{image_path}"
 
-def process_html(html_string: str) -> str:
+def process_html(html_string: str, code: str) -> str:
         base64_img_pattern = r'data:image/(png|jpeg);base64,([^"]+)'
 
         matches = findall(base64_img_pattern, html_string)
@@ -57,7 +57,7 @@ def process_html(html_string: str) -> str:
         new_html = html_string
 
         for i, (image_format, base64_img) in enumerate(matches, start=1):
-                image_filename = save_base64_image(base64_img, image_format, f"image_{i}")
+                image_filename = save_base64_image(base64_img, image_format, code, f"image_{i}")
 
                 replacement_text = rf"{image_filename}"
 
@@ -147,7 +147,7 @@ def code_analyzer(code: str):
                         webhook.remove_files()
                         continue
                 
-                response = process_html(response.decode('utf-8'))
+                response = process_html(response.decode('utf-8'), code)
 
                 if response in unique_responses:
                         message = f"{str(attempts).zfill(3)} - "
