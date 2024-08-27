@@ -4,6 +4,7 @@ from re import findall, sub, escape
 from requests import post
 from time import sleep
 from base64 import b64decode
+import threading
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -81,7 +82,7 @@ def save_file(content: bytes, content_type: str, index: int) -> str:
 
 webhook = DiscordWebhook(url=webhook_url, username="Unique Responses Detector (by Brute Force)")
 
-for code in codes:
+def code_analyzer(code: str):
         attempts = 0
         payload = f"--kljmyvW1ndjXaOEAg4vPm6RBUqO6MC5A\r\nContent-Disposition: form-data; name=\"code\"\r\n\r\n{code}\r\n--kljmyvW1ndjXaOEAg4vPm6RBUqO6MC5A--\r\n"
         unique_responses = []
@@ -180,7 +181,26 @@ for code in codes:
         webhook.content = message
         webhook.execute()
 
-message = "End of the code."
-print(message)
-webhook.content = message
-webhook.execute()
+def forLoop():
+        for code in codes:
+                code_analyzer(code)
+        
+        message = "End of the code."
+        print(message)
+        webhook.content = message
+        webhook.execute()
+
+def main():
+        thread = threading.Thread(target=forLoop)
+        thread.start()
+        try:
+                while True:
+                        sleep(60)
+        finally:
+                message = "Main Python file is finished (threads not included)."
+                print(message)
+                webhook.content = message
+                webhook.execute()
+
+if __name__ == "__main__":
+        main()
