@@ -28,7 +28,7 @@ while not webhook_url or not webhook_url.startswith("http"):
 
 HEADERS = {
         "Accept": "*/*",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",  # noqa: E501
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",  # ruff: ignore[line-too-long]
         "Content-Type": "multipart/form-data; boundary=kljmyvW1ndjXaOEAg4vPm6RBUqO6MC5A",
 }
 
@@ -113,7 +113,7 @@ Content-Disposition: form-data; name="code"\r
                 print(f"({code}) ", end="")
                 try:
                         r = post(ANALYZED_URL, data=payload, headers=HEADERS)
-                except Exception as e:  # noqa: BLE001
+                except Exception as e:  # ruff: ignore[blind-except]
                         message = f"{str(attempts).zfill(3)} - Failed to fetch the URL: {e}"
                         print(message)
                         webhook.content = message
@@ -137,7 +137,7 @@ Content-Disposition: form-data; name="code"\r
                                 webhook.content = r.content
                                 _ = webhook.execute()
                         finally:
-                                continue  # noqa: B012
+                                continue  # ruff: ignore[jump-statement-in-finally]
 
                 content_type = r.headers.get("Content-Type", "")
                 response = r.content
@@ -152,7 +152,7 @@ Content-Disposition: form-data; name="code"\r
 
                         file_path = save_file(response, content_type, len(unique_responses))
 
-                        message = f"{str(attempts).zfill(3)} - New unique response ({len(unique_responses)}): file saved as `{file_path}`"  # noqa: E501
+                        message = f"{str(attempts).zfill(3)} - New unique response ({len(unique_responses)}): file saved as `{file_path}`"  # ruff: ignore[line-too-long]
                         print(message)
                         webhook.content = message
                         _ = webhook.execute()

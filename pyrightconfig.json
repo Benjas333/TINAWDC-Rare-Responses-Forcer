@@ -1,0 +1,14 @@
+{
+        "include": [
+                "."
+        ],
+        "exclude": [
+                "**/build",
+                "**/dist",
+                "**/.vscode",
+                "**/__pycache__"
+        ],
+        "reportMissingImports": true,
+        "reportAny": false,
+        "reportExplicitAny": false
+}
